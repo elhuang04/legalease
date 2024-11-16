@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Upload & Chatbot</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            height: 100vh;
+            margin: 0;
+        }
+        .split {
+            display: flex;
+            flex: 1;
+        }
+        .left {
+            width: 50%;
+            overflow: auto;
+            border-right: 1px solid #ccc;
+        }
+        .right {
+            width: 50%;
+            padding: 20px;
+        }
+        #chat-box {
+            height: 400px;
+            overflow-y: scroll;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        #input-text {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Left Side (PDF Viewer + Upload) -->
+        <div class="col-6 left">
+            <h4>Upload PDF</h4>
+            <input type="file" id="file-upload" class="form-control mb-3">
+            <div id="pdf-container" style="width: 100%; height: 90vh;"></div>
+        </div>
+
+        <!-- Right Side (Chatbot) -->
+        <div class="col-6 right">
+            <h4>Chatbot</h4>
+            <div id="chat-box"></div>
+            <input type="text" id="input-text" class="form-control" placeholder="Type your message...">
+            <button id="send-button" class="btn btn-primary mt-2">Send</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    // Handle PDF upload
+    $('#file-upload').on('change', function(event) {
+        let formData = new FormData();
+        formData.append('file', event.target.files[0]);
+
+        $.ajax({
+            url: '/upload',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                $('#pdf-container').html(response.html);  // Embed the HTML content of the PDF
+            },
+            error: function(error) {
+                alert('Error uploading file');
+            }
+        });
+    });
+
+    // Handle text selection and editing
+    $('#pdf-container').on('mouseup', function() {
+        const selectedText = window.getSelection().toString();
+        if (selectedText) {
+            // Send selected text to OpenAI API
+            $.ajax({
+                url: '/chat',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ input: selectedText }),
+                success: function(response) {
+                    $('#chat-box').append('<div><strong>ChatGPT:</strong> ' + response.response + '</div>');
+                    $('#input-text').val('');  // Clear input after sending
+                },
+                error: function(error) {
+                    alert('Error in chat');
+                }
+            });
+        }
+    });
+
+    // Send user input to ChatGPT
+    $('#send-button').on('click', function() {
+        const userInput = $('#input-text').val();
+        if (userInput) {
+            $.ajax({
+                url: '/chat',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ input: userInput }),
+                success: function(response) {
+                    $('#chat-box').append('<div><strong>You:</strong> ' + userInput + '</div>');
+                    $('#chat-box').append('<div><strong>ChatGPT:</strong> ' + response.response + '</div>');
+                    $('#input-text').val('');  // Clear input after sending
+                },
+                error: function(error) {
+                    alert('Error in chat');
+                }
+            });
+        }
+    });
+</script>
+
+</body>
+</html>
