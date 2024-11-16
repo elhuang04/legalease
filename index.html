@@ -12,26 +12,31 @@
       <h2>Legalease</h2>
       <p>Have a legal document you want to understand better?</p>
       <input type="file" id="file-upload" accept=".pdf" />
-      <p>Choose File</p>
+      <label for="file-upload" class="custom-file-upload">Choose File</label>
     </div>
     <div id="pdf-viewer">
       <div id="pdf-container"></div>
     </div>
   </div>
-
+  
   <div id="chatbot-container">
     <div id="categories-card">
       <h3>Document Categories</h3>
-      <button class="category-button white-button">Contracts</button>
-      <button class="category-button white-button">Wills</button>
-      <button class="category-button white-button">Leases</button>
-      <button class="category-button white-button">NDAs</button>
-      <button class="category-button white-button">Other</button>
+      <button class="category-button white-button">
+        Lease/Rental Agreements
+        </button>
+      <button class="category-button white-button">Housing Contracts for Dormitories
+        </button>
+      <button class="category-button white-button">Sublease Agreements
+        </button>
+      <button class="category-button white-button">Security Deposit Terms
+        </button>
+      <button class="category-button white-button">Roommate Agreements</button>
     </div>
     <div id="chatbox"></div>
     <div id="input-box">
       <input type="text" id="user-input" placeholder="Ask the chatbot..." />
-      <button id="send-btn">Send</button>
+      <button class="generic-button" id="send-btn">Send</button>
     </div>
   </div>
 
