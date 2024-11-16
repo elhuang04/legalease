@@ -8,7 +8,7 @@ let highlightedText = "";
 document.getElementById('file-upload').addEventListener('change', function(event) {
   const file = event.target.files[0];
   if (file && file.type === 'application/pdf') {
-    uploadCard.style.display = 'none';
+    
     const reader = new FileReader();
     reader.onload = function() {
       const pdfData = new Uint8Array(reader.result);
@@ -58,7 +58,7 @@ function insertTextToChatbot(text) {
   userMessage.textContent = `User: ${text}`;
   chatbox.appendChild(userMessage);
   
-  // Send the text to chatbot (simulated here)
+  // Simulate chatbot response
   setTimeout(() => {
     const botMessage = document.createElement('div');
     botMessage.classList.add('message', 'bot-message');

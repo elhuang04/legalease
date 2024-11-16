@@ -3,63 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Editable PDF with Chatbot</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      display: flex;
-      height: 100vh;
-      margin: 0;
-    }
-    #left-panel {
-      width: 50%;
-      display: flex;
-      flex-direction: column;
-      border-right: 2px solid #ccc;
-    }
-    #upload-card {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      border-bottom: 2px dashed #ccc;
-      padding: 20px;
-    }
-    #pdf-viewer {
-      flex: 2;
-      padding: 20px;
-      overflow: auto;
-      position: relative;
-    }
-    #chatbot-container {
-      width: 50%;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      align-items: center;
-    }
-    .message {
-      background-color: #f1f1f1;
-      padding: 10px;
-      border-radius: 5px;
-      margin: 5px 0;
-      max-width: 80%;
-    }
-    .bot-message {
-      background-color: #dcdcdc;
-    }
-    .user-message {
-      background-color: #cfe9ff;
-    }
-  </style>
+  <title>Legalease</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="left-panel">
     <div id="upload-card">
+      <h2>Legalease</h2>
+      <p>Have a legal document you want to understand better?</p>
       <input type="file" id="file-upload" accept=".pdf" />
-      <p>Upload a PDF file</p>
+      <p>Choose File</p>
     </div>
     <div id="pdf-viewer">
       <div id="pdf-container"></div>
@@ -67,6 +20,14 @@
   </div>
 
   <div id="chatbot-container">
+    <div id="categories-card">
+      <h3>Document Categories</h3>
+      <button class="category-button white-button">Contracts</button>
+      <button class="category-button white-button">Wills</button>
+      <button class="category-button white-button">Leases</button>
+      <button class="category-button white-button">NDAs</button>
+      <button class="category-button white-button">Other</button>
+    </div>
     <div id="chatbox"></div>
     <div id="input-box">
       <input type="text" id="user-input" placeholder="Ask the chatbot..." />
@@ -75,84 +36,6 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
-  <script>
-    const uploadCard = document.getElementById('upload-card');
-    const pdfContainer = document.getElementById('pdf-container');
-    const chatbox = document.getElementById('chatbox');
-    const userInput = document.getElementById('user-input');
-    const sendBtn = document.getElementById('send-btn');
-    let highlightedText = "";
-
-    document.getElementById('file-upload').addEventListener('change', function(event) {
-      const file = event.target.files[0];
-      if (file && file.type === 'application/pdf') {
-        
-        const reader = new FileReader();
-        reader.onload = function() {
-          const pdfData = new Uint8Array(reader.result);
-          loadPdf(pdfData);
-        };
-        reader.readAsArrayBuffer(file);
-      }
-    });
-
-    function loadPdf(pdfData) {
-      pdfjsLib.getDocument(pdfData).promise.then(pdf => {
-        const totalPages = pdf.numPages;
-        for (let pageNumber = 1; pageNumber <= totalPages; pageNumber++) {
-          pdf.getPage(pageNumber).then(page => {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            const viewport = page.getViewport({ scale: 1.0 });
-            canvas.height = viewport.height;
-            canvas.width = viewport.width;
-            page.render({ canvasContext: ctx, viewport: viewport }).promise.then(() => {
-              pdfContainer.appendChild(canvas);
-            });
-          });
-        }
-      });
-    }
-
-    // Handle right-click to capture selected text
-    pdfContainer.addEventListener('mouseup', function() {
-      const selectedText = window.getSelection().toString();
-      if (selectedText) {
-        highlightedText = selectedText;
-      }
-    });
-
-    // Context Menu for inserting highlighted text into chatbot
-    pdfContainer.addEventListener('contextmenu', function(event) {
-      event.preventDefault();
-      if (highlightedText) {
-        insertTextToChatbot(highlightedText);
-      }
-    });
-
-    function insertTextToChatbot(text) {
-      const userMessage = document.createElement('div');
-      userMessage.classList.add('message', 'user-message');
-      userMessage.textContent = `User: ${text}`;
-      chatbox.appendChild(userMessage);
-      
-      // Simulate chatbot response
-      setTimeout(() => {
-        const botMessage = document.createElement('div');
-        botMessage.classList.add('message', 'bot-message');
-        botMessage.textContent = `Chatbot: Here's the information you selected: "${text}"`;
-        chatbox.appendChild(botMessage);
-      }, 500);
-    }
-
-    // Handle manual text input
-    sendBtn.addEventListener('click', function() {
-      const text = userInput.value;
-      if (text) {
-        insertTextToChatbot(text);
-        userInput.value = ''; // Clear input box
-      }
-    });
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>

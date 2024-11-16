@@ -1,71 +1,93 @@
 body {
-    margin: 0;
     font-family: Arial, sans-serif;
-    background-color: #f8f9fa;
-}
-
-.container {
     display: flex;
     height: 100vh;
+    margin: 0;
+  }
+  #left-panel {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    border-right: 2px solid #ccc;
+  }
+  #upload-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
     padding: 20px;
-    box-sizing: border-box;
-}
-
-.left-pane, .right-pane {
+    border-bottom: 2px dashed #ccc;
+  }
+  #categories-card {
     flex: 1;
     padding: 20px;
-    overflow: auto;
-    background-color: white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    margin: 10px;
-}
-
-.card {
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-}
-
-.chat-window {
-    border: 1px solid #ddd;
-    padding: 10px;
-    height: 30vh;
-    overflow-y: scroll;
-    margin-bottom: 10px;
-}
-
-#chatInput, #sendButton {
+    text-align: center;
+    border-bottom: 2px dashed #ccc;
+  }
+  .category-button {
     display: block;
-    width: calc(100% - 22px); /* To compensate for border and padding */
-    margin-top: 10px;
-}
-
-#sendButton {
-    width: 100%;
+    width: 80%;
     padding: 10px;
+    margin: 10px auto;
+    border: 2px solid #007bff;
+    border-radius: 5px;
     background-color: #007bff;
     color: white;
-    border: none;
     cursor: pointer;
-}
-
-#sendButton:hover {
+  }
+  .category-button:hover {
     background-color: #0056b3;
-}
-
-/* By default, the 'hidden' class will hide the element */
-.hidden {
-    display: none;
-}
-
-#pdf-viewer {
-    width: 50%;
+  }
+  #pdf-viewer {
+    flex: 3;
     padding: 20px;
     overflow: auto;
-    border: 2px solid #ccc;
     position: relative;
-    display: none; /* Hide the PDF viewer initially */
+  }
+  #chatbot-container {
+    width: 50%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    border-left: 2px solid #ccc;
+  }
+  #chatbox {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    max-height: 70vh;
+  }
+  .message {
+    background-color: #f1f1f1;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 5px 0;
+    max-width: 80%;
+  }
+  .bot-message {
+    background-color: #dcdcdc;
+  }
+  .user-message {
+    background-color: #cfe9ff;
+  }
+  #input-box {
+    display: flex;
+  }
+  #user-input {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    margin-right: 10px;
+  }
+  #send-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
   }
   
