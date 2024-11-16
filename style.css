@@ -1,0 +1,71 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.left-pane, .right-pane {
+    flex: 1;
+    padding: 20px;
+    overflow: auto;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    margin: 10px;
+}
+
+.card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.chat-window {
+    border: 1px solid #ddd;
+    padding: 10px;
+    height: 30vh;
+    overflow-y: scroll;
+    margin-bottom: 10px;
+}
+
+#chatInput, #sendButton {
+    display: block;
+    width: calc(100% - 22px); /* To compensate for border and padding */
+    margin-top: 10px;
+}
+
+#sendButton {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+#sendButton:hover {
+    background-color: #0056b3;
+}
+
+/* By default, the 'hidden' class will hide the element */
+.hidden {
+    display: none;
+}
+
+#pdf-viewer {
+    width: 50%;
+    padding: 20px;
+    overflow: auto;
+    border: 2px solid #ccc;
+    position: relative;
+    display: none; /* Hide the PDF viewer initially */
+  }
+  
