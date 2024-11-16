@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify
 import openai
 import pdfkit
 import os
+import dotenv
 
 app = Flask(__name__)
 
