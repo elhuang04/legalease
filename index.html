@@ -9,27 +9,32 @@
       font-family: Arial, sans-serif;
       display: flex;
       height: 100vh;
+      margin: 0;
+    }
+    #left-panel {
+      width: 50%;
+      display: flex;
+      flex-direction: column;
+      border-right: 2px solid #ccc;
     }
     #upload-card {
-      width: 50%;
-      padding: 20px;
-      border: 2px dashed #ccc;
+      flex: 1;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
-      text-align: center;
+      border-bottom: 2px dashed #ccc;
+      padding: 20px;
     }
     #pdf-viewer {
-      width: 50%;
+      flex: 2;
       padding: 20px;
       overflow: auto;
-      border: 2px solid #ccc;
       position: relative;
     }
     #chatbot-container {
       width: 50%;
       padding: 20px;
-      border-left: 2px solid #ccc;
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
@@ -51,13 +56,14 @@
   </style>
 </head>
 <body>
-  <div id="upload-card">
-    <input type="file" id="file-upload" accept=".pdf" />
-    <p>Upload a PDF file</p>
-  </div>
-
-  <div id="pdf-viewer">
-    <div id="pdf-container"></div>
+  <div id="left-panel">
+    <div id="upload-card">
+      <input type="file" id="file-upload" accept=".pdf" />
+      <p>Upload a PDF file</p>
+    </div>
+    <div id="pdf-viewer">
+      <div id="pdf-container"></div>
+    </div>
   </div>
 
   <div id="chatbot-container">
@@ -80,7 +86,7 @@
     document.getElementById('file-upload').addEventListener('change', function(event) {
       const file = event.target.files[0];
       if (file && file.type === 'application/pdf') {
-        uploadCard.style.display = 'none';
+        
         const reader = new FileReader();
         reader.onload = function() {
           const pdfData = new Uint8Array(reader.result);
@@ -130,7 +136,7 @@
       userMessage.textContent = `User: ${text}`;
       chatbox.appendChild(userMessage);
       
-      // Send the text to chatbot (simulated here)
+      // Simulate chatbot response
       setTimeout(() => {
         const botMessage = document.createElement('div');
         botMessage.classList.add('message', 'bot-message');
