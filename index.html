@@ -9,11 +9,18 @@
 <body>
   <div id="left-panel">
     <div id="upload-card">
-      <h2>Legalease</h2>
+      <!-- <h2>Legalease</h2> -->
+      <img src="Black Legalese Logo.png" style="width:150px; margin-top:5vh"></img>
       <p>Have a legal document you want to understand better?</p>
-      <input type="file" id="file-upload" accept=".pdf" />
-      <label for="file-upload" class="custom-file-upload">Choose File</label>
+      <div class="button-container" style="display:flex; column-gap:30px;">
+        <input type="file" id="file-upload" accept=".pdf" />
+        <label for="file-upload" class="custom-file-upload">Choose File</label>
+        <button id="edit-btn" class="generic-button" style="display: none;">Edit</button>
+      </div>
+
     </div>
+
+    
     <div id="pdf-viewer">
       <div id="pdf-container"></div>
     </div>
@@ -24,13 +31,13 @@
       <h3>Document Categories</h3>
       <button class="category-button white-button">
         Lease/Rental Agreements
-        </button>
+      </button>
       <button class="category-button white-button">Housing Contracts for Dormitories
-        </button>
+      </button>
       <button class="category-button white-button">Sublease Agreements
-        </button>
+      </button>
       <button class="category-button white-button">Security Deposit Terms
-        </button>
+      </button>
       <button class="category-button white-button">Roommate Agreements</button>
     </div>
     <div id="chatbox"></div>

@@ -1,15 +1,20 @@
 import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 const API_KEY = 'AIzaSyCfZMKtSWtaAFLRRz34eM2hyo3sGBpuwcw';
 
+const editBtn = document.getElementById('edit-btn');
 const uploadCard = document.getElementById('upload-card');
 const pdfContainer = document.getElementById('pdf-container');
 const chatbox = document.getElementById('chatbox');
 const userInput = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
+
 let highlightedText = "";
+let isSelecting = false;
+let startX, startY, endX, endY;
 
 // PDF Upload and Rendering
 document.getElementById('file-upload').addEventListener('change', function (event) {
+  editBtn.style.display = 'inline-block';
   const file = event.target.files[0];
   if (file && file.type === 'application/pdf') {
     const reader = new FileReader();
@@ -56,15 +61,6 @@ pdfContainer.addEventListener('contextmenu', function (event) {
   }
 });
 
-// Show loading spinner
-function showLoadingSpinner() {
-  const loadingSpinner = document.createElement('div');
-  loadingSpinner.classList.add('loading-spinner');
-  loadingSpinner.textContent = 'Retrieving response from AI...';
-  chatbox.appendChild(loadingSpinner);
-  return loadingSpinner;
-}
-
 // Chatbot Logic
 async function handleUserInput(text) {
   const userMessage = document.createElement('div');
@@ -78,19 +74,17 @@ async function handleUserInput(text) {
     const genAI = new GoogleGenerativeAI(API_KEY);
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    const prompt = `I want legal advice on ${text}.`;
+    const prompt = "Write a story about a magic backpack.";
     const result = await model.generateContent(prompt);
 
-    loadingSpinner.remove(); // Remove loading spinner once response is received
-
-    console.log(result.response.text());
+    loadingSpinner.remove();
 
     const botMessage = document.createElement('div');
     botMessage.classList.add('message', 'bot-message');
     botMessage.textContent = `Chatbot: ${result.response.text()}`;
     chatbox.appendChild(botMessage);
   } catch (error) {
-    loadingSpinner.remove(); // Remove loading spinner in case of error
+    loadingSpinner.remove();
 
     const errorMessage = document.createElement('div');
     errorMessage.classList.add('message', 'bot-message');
@@ -103,8 +97,17 @@ function insertTextToChatbot(text) {
   handleUserInput(text);
 }
 
+// Show loading spinner
+function showLoadingSpinner() {
+  const loadingSpinner = document.createElement('div');
+  loadingSpinner.classList.add('loading-spinner');
+  loadingSpinner.textContent = 'Retrieving response from AI...';
+  chatbox.appendChild(loadingSpinner);
+  return loadingSpinner;
+}
+
 // Onclick function for send button
-window.handleSend = function() {
+window.handleSend = function () {
   const text = userInput.value.trim();
   if (text) {
     insertTextToChatbot(text);
@@ -118,6 +121,114 @@ userInput.addEventListener('keydown', function (event) {
     handleSend();
   }
 });
+
+// Handle screenshot selection
+editBtn.addEventListener('click', () => {
+  isSelecting = true;
+  pdfContainer.style.cursor = 'crosshair';
+});
+
+pdfContainer.addEventListener('mousedown', (event) => {
+  if (!isSelecting) return;
+
+  startX = event.offsetX;
+  startY = event.offsetY;
+
+  const selectionBox = document.createElement('div');
+  selectionBox.classList.add('selection-box');
+  pdfContainer.appendChild(selectionBox);
+
+  const onMouseMove = (event) => {
+    endX = event.offsetX;
+    endY = event.offsetY;
+
+    // Update the box position and size using CSS transforms
+    const left = Math.min(startX, endX);
+    const top = Math.min(startY, endY);
+    const width = Math.abs(endX - startX);
+    const height = Math.abs(endY - startY);
+
+    selectionBox.style.transform = `translate(${left}px, ${top}px)`;
+    selectionBox.style.width = `${width}px`;
+    selectionBox.style.height = `${height}px`;
+  };
+
+  const onMouseUp = () => {
+    isSelecting = false;
+    pdfContainer.style.cursor = 'default';
+    pdfContainer.removeEventListener('mousemove', onMouseMove);
+    pdfContainer.removeEventListener('mouseup', onMouseUp);
+
+    // Finalize selection
+    captureScreenshot(startX, startY, endX, endY);
+    selectionBox.remove(); // Remove the visual selection box after use
+  };
+
+  pdfContainer.addEventListener('mousemove', onMouseMove);
+  pdfContainer.addEventListener('mouseup', onMouseUp);
+});
+
+function captureScreenshot(startX, startY, endX, endY) {
+  const canvas = pdfContainer.querySelector('canvas');
+  const ctx = canvas.getContext('2d');
+  const width = Math.abs(endX - startX);
+  const height = Math.abs(endY - startY);
+  const screenshotCanvas = document.createElement('canvas');
+  screenshotCanvas.width = width;
+  screenshotCanvas.height = height;
+  const screenshotCtx = screenshotCanvas.getContext('2d');
+  screenshotCtx.drawImage(canvas, Math.min(startX, endX), Math.min(startY, endY), width, height, 0, 0, width, height);
+
+  // Get the image data URL
+  const imageDataURL = screenshotCanvas.toDataURL('image/png');
+
+  // Display the selection as highlighted
+  ctx.fillStyle = 'rgba(255, 255, 0, 0.5)';
+  ctx.fillRect(Math.min(startX, endX), Math.min(startY, endY), width, height);
+  ctx.strokeStyle = '#007bff';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([5, 5]);
+  ctx.strokeRect(Math.min(startX, endX), Math.min(startY, endY), width, height);
+
+  // Use the screenshot image data for the Gemini API call
+  insertImageToChatbot(imageDataURL);
+}
+
+async function insertImageToChatbot(imageDataURL) {
+  const userMessage = document.createElement('div');
+  userMessage.classList.add('message', 'user-message');
+  userMessage.textContent = 'User: (document section selected)';
+  chatbox.appendChild(userMessage);
+
+  const loadingSpinner = showLoadingSpinner();
+
+  try {
+    const genAI = new GoogleGenerativeAI(API_KEY);
+    const myfile = await genAI.uploadFile(new File([imageDataURL], "screenshot.png", { type: "image/png" }));
+    console.log(`myfile=${myfile}`);
+
+    const model = new genAI.GenerativeModel("gemini-1.5-flash");
+    const result = await model.generateContent([
+      myfile,
+      "\n\n",
+      "Can you tell me about the information in this screenshot?"
+    ]);
+
+    loadingSpinner.remove();
+
+    const botMessage = document.createElement('div');
+    botMessage.classList.add('message', 'bot-message');
+    botMessage.textContent = `Chatbot: ${result.text}`;
+    chatbox.appendChild(botMessage);
+  } catch (error) {
+    loadingSpinner.remove();
+
+    const errorMessage = document.createElement('div');
+    errorMessage.classList.add('message', 'bot-message');
+    errorMessage.textContent = `Chatbot: I'm sorry, something went wrong.`;
+    chatbox.appendChild(errorMessage);
+  }
+}
 
 // Add event listeners to category buttons
 document.querySelectorAll('.category-button').forEach(button => {
