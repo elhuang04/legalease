@@ -88,7 +88,7 @@ async function handleUserInput(text) {
     const genAI = new GoogleGenerativeAI(API_KEY);
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    const prompt = "Write a story about a magic backpack.";
+    const prompt = text;
     const result = await model.generateContent(prompt);
 
     loadingSpinner.remove();
