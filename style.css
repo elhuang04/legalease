@@ -111,3 +111,4 @@ body {
     cursor: pointer;
   }
   
+  .loading-spinner { padding: 10px; margin: 10px 0; font-style: italic; color: #555; }
