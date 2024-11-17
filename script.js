@@ -11,6 +11,8 @@ const sendBtn = document.getElementById('send-btn');
 let highlightedText = "";
 let isSelecting = false;
 let startX, startY, endX, endY;
+let currentPageNumber = 1; // Track the current page number
+let canvases = []; // Store canvases for multi-page PDF rendering
 
 // PDF Upload and Rendering
 document.getElementById('file-upload').addEventListener('change', function (event) {
@@ -30,6 +32,7 @@ function loadPdf(pdfData) {
   pdfjsLib.getDocument(pdfData).promise.then(pdf => {
     const totalPages = pdf.numPages;
     pdfContainer.innerHTML = ''; // Clear container before adding new content
+    canvases = [];
     for (let pageNumber = 1; pageNumber <= totalPages; pageNumber++) {
       pdf.getPage(pageNumber).then(page => {
         const canvas = document.createElement('canvas');
@@ -37,6 +40,9 @@ function loadPdf(pdfData) {
         const viewport = page.getViewport({ scale: 1.0 });
         canvas.height = viewport.height;
         canvas.width = viewport.width;
+        canvas.dataset.pageNumber = pageNumber; // Associate canvas with page number
+        canvases[pageNumber - 1] = canvas;
+
         page.render({ canvasContext: ctx, viewport: viewport }).promise.then(() => {
           pdfContainer.appendChild(canvas);
         });
@@ -44,6 +50,14 @@ function loadPdf(pdfData) {
     }
   });
 }
+
+// Update current page based on click location
+pdfContainer.addEventListener('click', function (event) {
+  const targetCanvas = event.target.closest('canvas');
+  if (targetCanvas) {
+    currentPageNumber = parseInt(targetCanvas.dataset.pageNumber, 10);
+  }
+});
 
 // Handle right-click to capture selected text
 pdfContainer.addEventListener('mouseup', function () {
@@ -131,6 +145,9 @@ editBtn.addEventListener('click', () => {
 pdfContainer.addEventListener('mousedown', (event) => {
   if (!isSelecting) return;
 
+  const targetCanvas = event.target.closest('canvas');
+  if (!targetCanvas) return;
+
   startX = event.offsetX;
   startY = event.offsetY;
 
@@ -142,7 +159,6 @@ pdfContainer.addEventListener('mousedown', (event) => {
     endX = event.offsetX;
     endY = event.offsetY;
 
-    // Update the box position and size using CSS transforms
     const left = Math.min(startX, endX);
     const top = Math.min(startY, endY);
     const width = Math.abs(endX - startX);
@@ -159,17 +175,15 @@ pdfContainer.addEventListener('mousedown', (event) => {
     pdfContainer.removeEventListener('mousemove', onMouseMove);
     pdfContainer.removeEventListener('mouseup', onMouseUp);
 
-    // Finalize selection
-    captureScreenshot(startX, startY, endX, endY);
-    selectionBox.remove(); // Remove the visual selection box after use
+    captureScreenshot(targetCanvas, startX, startY, endX, endY);
+    selectionBox.remove(); // Remove the visual selection box
   };
 
   pdfContainer.addEventListener('mousemove', onMouseMove);
   pdfContainer.addEventListener('mouseup', onMouseUp);
 });
 
-function captureScreenshot(startX, startY, endX, endY) {
-  const canvas = pdfContainer.querySelector('canvas');
+function captureScreenshot(canvas, startX, startY, endX, endY) {
   const ctx = canvas.getContext('2d');
   const width = Math.abs(endX - startX);
   const height = Math.abs(endY - startY);
@@ -179,10 +193,8 @@ function captureScreenshot(startX, startY, endX, endY) {
   const screenshotCtx = screenshotCanvas.getContext('2d');
   screenshotCtx.drawImage(canvas, Math.min(startX, endX), Math.min(startY, endY), width, height, 0, 0, width, height);
 
-  // Get the image data URL
   const imageDataURL = screenshotCanvas.toDataURL('image/png');
 
-  // Display the selection as highlighted
   ctx.fillStyle = 'rgba(255, 255, 0, 0.5)';
   ctx.fillRect(Math.min(startX, endX), Math.min(startY, endY), width, height);
   ctx.strokeStyle = '#007bff';
@@ -190,11 +202,10 @@ function captureScreenshot(startX, startY, endX, endY) {
   ctx.setLineDash([5, 5]);
   ctx.strokeRect(Math.min(startX, endX), Math.min(startY, endY), width, height);
 
-  // Use the screenshot image data for the Gemini API call
-  insertImageToChatbot(imageDataURL);
+  insertImageToChatbot(imageDataURL, currentPageNumber);
 }
 
-async function insertImageToChatbot(imageDataURL) {
+async function insertImageToChatbot(imageDataUR, pageNumber) {
   const userMessage = document.createElement('div');
   userMessage.classList.add('message', 'user-message');
   userMessage.textContent = 'User: (document section selected)';
